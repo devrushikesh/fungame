@@ -1,6 +1,7 @@
 import requests
 import re
 import json
+import time
 import utils
 from requests_body import *
 
@@ -66,7 +67,6 @@ def getAndharBaharLastStatus(input_str):
         print(f"Request failed: {e}")
         return None,None
 
-
 def getAndharBaharDrawnoResult(input_str):
     url = "https://sev01.gigp.vip/GAAndroidSer/AndWsService.svc"
     headers = {
@@ -76,7 +76,7 @@ def getAndharBaharDrawnoResult(input_str):
     }
     body = getAndharBaharDrawNoRequestBody(input_str)
 
-    for i in range(5):
+    for i in range(10):
         try:
             response = session.post(url, headers=headers, data=body)
             response.raise_for_status()
@@ -84,23 +84,22 @@ def getAndharBaharDrawnoResult(input_str):
 
             match = re.search(r"<IGetAnharBaharDrawnoResult>(.*?)</IGetAnharBaharDrawnoResult>", response.text)
             if match:
-
                 data = match.group(1).split(',')
 
-                if len(data)!=5:
+                if len(data) != 5:
+                    time.sleep(0.5)
                     continue
 
-
                 if data[0][-1] == data[1][-1]:
-                    return 1,int(data[3]),int(data[4])
-                
+                    return 1, int(data[3])+1, int(data[4])
                 else:
-                    return 0,int(data[3]),int(data[4])
-                
+                    return 0, int(data[3])+1, int(data[4])
             else:
                 print("Unexpected response format:", response.text)
-                continue
         except requests.RequestException as e:
             print(f"Request failed: {e}")
-            continue
+        
+        # 🕒 Add 0.5s delay after each failed attempt or unexpected result
+        time.sleep(0.5)
+
     return None, None, None

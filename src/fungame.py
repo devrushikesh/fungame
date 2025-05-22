@@ -178,14 +178,20 @@ class Ui_MainWindow(object):
 
     def _updateUIWithResult(self, result, drawId, rem_time):
         try:
-            print("Updating data...")
-            self.drawId = drawId
-            self.result = result
-            self.timerVal = rem_time if rem_time!=0 else 45
+            print(result, drawId, rem_time)
+            print(type(result))
+
+            if result == 1 or result == 0:
+                self.drawId = drawId
+                self.result = result
+                self.timerVal = rem_time if rem_time!=0 else 45
+                
+                # Update status label
+                self.label_3.setText("Saving...")
             
-            # Update status label
-            self.label_3.setText("Saving...")
-            
+            else:
+                result = "Error"
+               
             # Save to file in selected folder
             try:
                 with open(os.path.join(self.selected_folder, "results.txt"), "a") as f:
